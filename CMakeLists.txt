@@ -7,9 +7,27 @@ option(BUILD_TESTAPP "Build test application" OFF)
 
 find_package(imgui REQUIRED)
 
+set(SOFTRENDER_HEADERS
+    imgui/imgui_softrender.h
+    imgui/softrender/barycentric.h
+    imgui/softrender/color.h
+    imgui/softrender/defines.h
+    imgui/softrender/softrender.h
+    imgui/softrender/texture.h
+    imgui/softrender/utils.h
+)
+
+# Preserve the softrender subdirectory structure during installation
+foreach(header IN LISTS SOFTRENDER_HEADERS)
+    get_filename_component(header_dir ${header} DIRECTORY)
+    install(FILES ${header}
+        DESTINATION include/${header_dir}
+    )
+endforeach()
+
 add_library(imgui-softrender SHARED
     imgui/imgui_softrender.cpp
-    imgui/imgui_softrender.h
+    ${SOFTRENDER_HEADERS}
 )
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -31,8 +49,8 @@ target_link_libraries(imgui-softrender
 set_target_properties(imgui-softrender PROPERTIES
     VERSION 1.0
     SOVERSION 1
-    PUBLIC_HEADER "imgui/imgui_softrender.h"
 )
+
 set_target_properties(imgui-softrender PROPERTIES
     OUTPUT_NAME "imgui-softrender"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -44,18 +62,17 @@ install(TARGETS imgui-softrender
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
-    PUBLIC_HEADER DESTINATION include/imgui
 )
 install(EXPORT imgui-softrender-targets
     FILE imgui-softrender-targets.cmake
     NAMESPACE imgui::
-    DESTINATION lib/cmake/imgui
+    DESTINATION lib/cmake/imgui-softrender
 )
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/imgui-softrender-config.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/imgui-softrender-config.cmake"
-    INSTALL_DESTINATION "lib/cmake/imgui"
+    INSTALL_DESTINATION "lib/cmake/imgui-softrender"
     PATH_VARS CMAKE_INSTALL_PREFIX
 )
 write_basic_package_version_file(
@@ -66,7 +83,7 @@ write_basic_package_version_file(
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/imgui-softrender-config.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/imgui-softrender-config-version.cmake"
-    DESTINATION "lib/cmake/imgui")
+    DESTINATION "lib/cmake/imgui-softrender")
 
 
 if (BUILD_TESTAPP)

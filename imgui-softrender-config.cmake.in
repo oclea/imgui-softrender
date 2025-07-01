@@ -1,1 +1,7 @@
 @PACKAGE_INIT@
+
+find_package(imgui REQUIRED)
+
+message(STATUS "Found ImGui Softrender")
+
+include("${CMAKE_CURRENT_LIST_DIR}/imgui-softrender-targets.cmake")
